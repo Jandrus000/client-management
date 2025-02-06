@@ -2,48 +2,39 @@
 -behavior(gen_server).
 
 %% API
--export([start/1, stop/1, start_link/1]).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--record(state, {dummy}).
-start(Name) ->
-    gen_server:start_child(Name).
+-export([start_link/0, add_item/1, remove_item/0, get_items/0]).
+-export([init/1, handle_call/3, handle_cast/2, terminate/2]).
 
-increment(Name, Amount) ->
-    gen_server:cast(Name, Amount, increment).
+start_link()->
+    gen_server:start_link({local, yup}, server, [], []).
 
-% get_increment(Name) ->
-%     gen_server:
+add_item(Item)->
+    gen_server:cast(yup, {add_item, Item}).
 
-stop(Name) ->
-    gen_server:call(Name, stop).
+remove_item() ->
+    gen_server:cast(yup, remove).
 
-start_link(Name) ->
-    gen_server:start_link({local, Name}, ?MODULE, [], []).
+get_items() ->
+    gen_server:call(yup, get_items).
 
 
-% ! Callback functions
 
-init(_Args) ->
-    {ok, #state{dummy=1}}.
+init([])->
+    {ok, []}.
 
-handle_call(stop, _From, State) ->
-    {stop, normal, stopped, State};
+handle_cast({add_item, Item}, Items) ->
+    NewItems = [Item | Items],
+    {noreply, NewItems};
+handle_cast(remove, Items) ->
+    [_|Tail] = Items,
+    NewItems = Tail,
+    {noreply, NewItems}.
 
-handle_call(_Request, _From, State) ->
-    {reply, ok, State}.
+handle_call(get_items, _From, Items) ->
+    {reply, Items, Items};
+handle_call(stop, _From, Items) ->
+    {stop, normal, ok, Items}.
 
-handle_cast(increment, State) ->
-    New_State = State + 1,
-    {noreply, New_State};
-
-handle_cast(_Msg, State) ->
-    {noreply, State}.
-
-handle_info(_Info, State) ->
-    {noreply, State}.
-
-terminate(_Reason, _State) ->
+terminate(_Reason, Items)->
+    io:format("It stopped ~n~p", [Items]),
     ok.
-
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
