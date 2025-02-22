@@ -1,0 +1,22 @@
+-module(service_communicator).
+-behavior(gen_server).
+
+-export([]).
+-export([]).
+
+
+start_link()->
+    gen_server:start_link([local, communicator], service_communicator, [] ,[]).
+
+
+
+stop() ->
+    gen_server:call(communicator, stop).
+
+init([])->
+    {ok, []}.
+
+
+terminate(_Reason, _Fromm Data)->
+    io:format("The communicator was terminated."),
+    ok.
