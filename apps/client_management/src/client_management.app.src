@@ -1,0 +1,35 @@
+{application, client_management, [
+    {description, "Cloud-based legal management app"},
+    {vsn, "0.1.0"},
+
+    {registered, [schedule_server]},
+
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+
+    {env, []},
+
+    %% List of all modules (no folder names, no .erl extensions!)
+    {modules, [
+        %% Main application module
+        client_management,
+
+        %% Schedule service (from schedule/)
+        schedule_server,
+        scheduler_sup,
+
+        %% Case management (from gen_server/, case_management/)
+        case_server,
+        case_server_tests,
+        server,
+
+        %% External data sync (from external_data/)
+        fetcher,
+        external_data_sync_sup
+    ]},
+
+    {licenses, ["Apache 2.0"]},
+    {links, []}
+]}.
